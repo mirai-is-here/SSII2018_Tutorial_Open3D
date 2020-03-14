@@ -52,7 +52,7 @@ int main(int argc, char * argv[])
     while(1){
         rs2::frameset data = pipe.wait_for_frames();  
         auto aligned_frames = align.process(data);   // RGB画像に対してDepth画像を位置合わせ
-        rs2::frame depth_vis = color_map(aligned_frames.get_depth_frame());
+        rs2::frame depth_vis = data.get_depth_frame().apply_filter(color_map);
         rs2::frame depth = aligned_frames.get_depth_frame();
         rs2::frame color = aligned_frames.get_color_frame();
 
@@ -99,7 +99,7 @@ cv::Mat frame_to_mat(const rs2::frame& f)
     {
         //cerr<<"RS2_FORMAT_RGB8"<<endl;
         auto r = Mat(Size(w, h), CV_8UC3, (void*)f.get_data(), Mat::AUTO_STEP);
-        cv::cvtColor(r, r, CV_BGR2RGB);
+        cv::cvtColor(r, r, COLOR_BGR2RGB);
         return r;
     }
     else if (f.get_profile().format() == RS2_FORMAT_Z16)
